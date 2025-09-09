@@ -1,0 +1,18 @@
+[project]
+name = "play"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "langchain>=0.3.27",
+  "langchain-community>=0.3.29",
+  "python-dotenv==1.0.0",
+  "streamlit>=1.49.1",
+  "dashscope>=1.24.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.12",
+]

@@ -1,0 +1,38 @@
+# Python-generated files
+**/__pycache__/
+**/*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environment
+.venv
+
+# Dev related
+.git/
+.gitlab/
+.gitignore
+.gitlab-ci.yml
+.envrc
+.pre-commit-config.yaml
+justfile
+.vscode/*
+README.md
+CHANGELOG.md
+
+# Env
+.env*
+.python-version
+
+# Temp files
+**/*.tmp
+**/*.log
+**/*.err
+**/*.old
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Container related
+deploy/

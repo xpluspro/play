@@ -1,43 +1,16 @@
 from pydantic import BaseModel
-from typing import Dict, List, Optional
-from datetime import datetime
-import json
+
 
 class GamePrompt(BaseModel):
     """游戏题目配置"""
+
     name: str  # 题目名称
     answer: str  # 正确答案
     system_prompt: str  # 系统提示词
-    hints: List[str] = []  # 提示信息
+    hints: list[str] = []  # 提示信息
     max_attempts: int = 10  # 最大尝试次数
-    
-class ChatMessage(BaseModel):
-    """聊天消息"""
-    content: str
-    timestamp: datetime = None
-    
-class GuessRequest(BaseModel):
-    """用户猜测请求"""
-    guess: str
-    session_id: str
-    
-class GuessResponse(BaseModel):
-    """猜测响应"""
-    message: str
-    is_correct: bool
-    game_over: bool
-    attempts_left: int
-    elapsed_time: Optional[float] = None
-    
-class GameSession(BaseModel):
-    """游戏会话"""
-    session_id: str
-    game_id: str
-    start_time: datetime
-    attempts: int = 0
-    is_finished: bool = False
-    messages: List[Dict] = []
-    
+
+
 # 预设题目配置
 GAME_PROMPTS = {
     "animal": GamePrompt(
@@ -65,9 +38,8 @@ GAME_PROMPTS = {
 
 现在开始游戏，等待用户的问题。""",
         hints=[],
-        max_attempts=999
+        max_attempts=5,
     ),
-    
     "fruit": GamePrompt(
         name="神秘水果",
         answer="火龙果",
@@ -93,9 +65,8 @@ GAME_PROMPTS = {
 
 现在开始游戏，等待用户的问题。""",
         hints=[],
-        max_attempts=999
+        max_attempts=999,
     ),
-    
     "object": GamePrompt(
         name="日常物品",
         answer="雨伞",
@@ -121,9 +92,8 @@ GAME_PROMPTS = {
 
 现在开始游戏，等待用户的问题。""",
         hints=[],
-        max_attempts=999
+        max_attempts=999,
     ),
-    
     "place": GamePrompt(
         name="著名地点",
         answer="长城",
@@ -149,6 +119,6 @@ GAME_PROMPTS = {
 
 现在开始游戏，等待用户的问题。""",
         hints=[],
-        max_attempts=999
-    )
+        max_attempts=999,
+    ),
 }

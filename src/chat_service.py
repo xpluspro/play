@@ -32,7 +32,8 @@ class QwenChatService:
 
             # Use the synchronous `invoke` method
             response = self.client.invoke(messages)
-            return response.content.strip()
+            content: str = response.content
+            return content.strip().replace(game_prompt.answer, "███")
 
         except Exception as e:
             print(f"AI response error: {e}")

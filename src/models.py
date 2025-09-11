@@ -13,7 +13,7 @@ class GamePrompt(BaseModel):
 
 # 预设题目配置
 GAME_PROMPTS = {
-    "animal": GamePrompt(
+    "1": GamePrompt(
         name="Problem 1",
         answer="网管部",
         system_prompt="""你是一个智能的游戏主持人，用户需要猜出你心中想的东西。这个东西是：网管部。
@@ -43,7 +43,7 @@ GAME_PROMPTS = {
         hints=[],
         max_attempts=999,
     ),
-    "fruit": GamePrompt(
+    "2": GamePrompt(
         name="Problem 2",
         answer="基建处103",
         system_prompt="""你是一个智能的游戏主持人，用户需要猜出你心中想的东西。这个东西是：基建处103。
@@ -70,7 +70,7 @@ GAME_PROMPTS = {
         hints=[],
         max_attempts=999,
     ),
-    "object": GamePrompt(
+    "3": GamePrompt(
         name="Problem 3",
         answer="web组",
         system_prompt="""你是一个智能的游戏主持人，用户需要猜出你心中想的东西。这个东西是：web组。
@@ -97,7 +97,7 @@ GAME_PROMPTS = {
         hints=[],
         max_attempts=999,
     ),
-    "place": GamePrompt(
+    "4": GamePrompt(
         name="Problem 4",
         answer="网管员",
         system_prompt="""你是一个智能的游戏主持人，用户需要猜出你心中想的东西。这个东西是：网管员。

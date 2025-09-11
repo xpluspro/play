@@ -36,3 +36,4 @@ CHANGELOG.md
 
 # Container related
 deploy/
+.containerignore

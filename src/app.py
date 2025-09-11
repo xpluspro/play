@@ -1,8 +1,9 @@
+from typing import cast
 import streamlit as st
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from models import GAME_PROMPTS
+from models import GAME_PROMPTS, GamePrompt
 from chat_service import QwenChatService
 
 # Load environment variables
@@ -12,18 +13,68 @@ load_dotenv()
 chat_service = QwenChatService()
 
 
-@st.fragment(run_every=1)
+@st.fragment(run_every=0.1)
 def timedelta_display():
-    elapsed_time = (datetime.now() - st.session_state.start_time).total_seconds()
-    st.write(f"**已用时:** {int(elapsed_time)} 秒")
+    elapsed_time = cast(
+        timedelta,
+        datetime.now() - st.session_state.start_time,
+    ).total_seconds()
+    st.write(f"**已用时:** {elapsed_time:.3f} 秒")
+
+
+@st.fragment
+def sidebar(game_config: GamePrompt):
+    st.header("游戏设置")
+    game_options = list(GAME_PROMPTS.keys())
+    game_names = [GAME_PROMPTS[key].name for key in game_options]
+    selected_game_name = st.selectbox(
+        "选择一个游戏",
+        game_names,
+        index=game_options.index(st.session_state.game_id),
+    )
+
+    if st.button("开始新游戏"):
+        selected_game_id = game_options[game_names.index(selected_game_name)]
+
+        # Reset game state without clearing everything
+        st.session_state.game_id = selected_game_id
+        st.session_state.messages = [
+            {"role": "assistant", "content": "我们来玩猜东西游戏吧！你准备好了吗？"}
+        ]
+        st.session_state.game_over = False
+        st.session_state.game_started = False
+        st.session_state.start_time = None
+        st.session_state.attempts = 0
+        st.session_state.failure_reason = None
+
+    st.header("游戏状态")
+    st.write(f"**游戏:** {game_config.name}")
+    st.write(
+        f"**尝试次数:** {st.session_state.attempts} / {game_config.max_attempts}"
+    )
+
+    if st.session_state.game_started and not st.session_state.game_over:
+        timedelta_display()
+
+    st.header("游戏规则")
+    # FIXME: This keep refreshes
+    st.info(
+        f"你需要通过提问来猜出我心中想的东西。你有 {game_config.max_attempts} 次机会。我会根据你的问题给出提示。当你觉得知道答案时，可以直接说出你的猜测。"
+    )
 
 
 def main():
+    """
+    主页 query params: `game` 游戏 ID，默认为 1
+    """
     st.title("🎮 猜东西游戏")
 
     # --- Game Setup ---
     if "game_id" not in st.session_state:
-        st.session_state.game_id = "animal"  # Default game
+        game_id = st.query_params.get("game")
+        if not game_id or game_id not in GAME_PROMPTS:
+            game_id = "1"  # Default game
+        st.session_state.game_id = game_id
         st.session_state.messages = [
             {"role": "assistant", "content": "我们来玩猜东西游戏吧！你准备好了吗？"}
         ]
@@ -37,43 +88,7 @@ def main():
 
     # --- Sidebar ---
     with st.sidebar:
-        st.header("游戏设置")
-        game_options = list(GAME_PROMPTS.keys())
-        game_names = [GAME_PROMPTS[key].name for key in game_options]
-        selected_game_name = st.selectbox(
-            "选择一个游戏",
-            game_names,
-            index=game_options.index(st.session_state.game_id),
-        )
-
-        if st.button("开始新游戏"):
-            selected_game_id = game_options[game_names.index(selected_game_name)]
-
-            # Reset game state without clearing everything
-            st.session_state.game_id = selected_game_id
-            st.session_state.messages = [
-                {"role": "assistant", "content": "我们来玩猜东西游戏吧！你准备好了吗？"}
-            ]
-            st.session_state.game_over = False
-            st.session_state.game_started = False
-            st.session_state.start_time = None
-            st.session_state.attempts = 0
-            st.session_state.failure_reason = None
-
-        st.header("游戏状态")
-        st.write(f"**游戏:** {game_config.name}")
-        st.write(
-            f"**尝试次数:** {st.session_state.attempts} / {game_config.max_attempts}"
-        )
-
-        if st.session_state.game_started and not st.session_state.game_over:
-            timedelta_display()
-
-        st.header("游戏规则")
-        st.info(
-            f"你需要通过提问来猜出我心中想的东西。你有 {game_config.max_attempts} 次机会。我会根据你的问题给出提示。当你觉得知道答案时，可以直接说出你的猜测。"
-        )
-
+        sidebar(game_config)
     # --- Chat Interface ---
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -84,7 +99,7 @@ def main():
             st.error(st.session_state.failure_reason)
         else:
             st.success(
-                f"🎉 恭喜你答对了！答案就是：{game_config.answer}。总用时: {int(st.session_state.final_time)} 秒"
+                f"🎉 恭喜你答对了！答案就是：{game_config.answer}。总用时: {st.session_state.final_time:.3f} 秒"
             )
             st.balloons()
         st.stop()

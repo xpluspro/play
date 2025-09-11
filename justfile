@@ -22,6 +22,11 @@ build version='latest':
 @up:
   {{container_runtime}} compose up -d
 
+# Compose logs -f
+[working-directory: 'deploy']
+@logs:
+  {{container_runtime}} compose logs -f
+
 # Compose down
 [working-directory: 'deploy']
 @down:

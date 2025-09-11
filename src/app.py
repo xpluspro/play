@@ -3,6 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
+from links import RAND_ID_MAPPING
 from models import GAME_PROMPTS, GamePrompt
 from chat_service import QwenChatService
 
@@ -15,29 +16,20 @@ chat_service = QwenChatService()
 
 @st.fragment(run_every=0.1)
 def timedelta_display():
-    elapsed_time = cast(
-        timedelta,
-        datetime.now() - st.session_state.start_time,
-    ).total_seconds()
-    st.write(f"**已用时:** {elapsed_time:.3f} 秒")
+    if st.session_state.game_started and not st.session_state.game_over:
+        elapsed_time = cast(
+            timedelta,
+            datetime.now() - st.session_state.start_time,
+        ).total_seconds()
+        st.write(f"**已用时:** {elapsed_time:.3f} 秒")
 
 
 @st.fragment
 def sidebar(game_config: GamePrompt):
     st.header("游戏设置")
-    game_options = list(GAME_PROMPTS.keys())
-    game_names = [GAME_PROMPTS[key].name for key in game_options]
-    selected_game_name = st.selectbox(
-        "选择一个游戏",
-        game_names,
-        index=game_options.index(st.session_state.game_id),
-    )
 
     if st.button("开始新游戏"):
-        selected_game_id = game_options[game_names.index(selected_game_name)]
-
         # Reset game state without clearing everything
-        st.session_state.game_id = selected_game_id
         st.session_state.messages = [
             {"role": "assistant", "content": "我们来玩猜东西游戏吧！你准备好了吗？"}
         ]
@@ -49,9 +41,7 @@ def sidebar(game_config: GamePrompt):
 
     st.header("游戏状态")
     st.write(f"**游戏:** {game_config.name}")
-    st.write(
-        f"**尝试次数:** {st.session_state.attempts} / {game_config.max_attempts}"
-    )
+    st.write(f"**尝试次数:** {st.session_state.attempts} / {game_config.max_attempts}")
 
     if st.session_state.game_started and not st.session_state.game_over:
         timedelta_display()
@@ -68,12 +58,11 @@ def main():
     主页 query params: `game` 游戏 ID，默认为 1
     """
     st.title("🎮 猜东西游戏")
-
     # --- Game Setup ---
     if "game_id" not in st.session_state:
-        game_id = st.query_params.get("game")
-        if not game_id or game_id not in GAME_PROMPTS:
-            game_id = "1"  # Default game
+        rand_id = st.query_params.get("game")
+        if not rand_id or (game_id := RAND_ID_MAPPING.get(rand_id)) not in GAME_PROMPTS:
+            game_id = "nimo"  # Default game
         st.session_state.game_id = game_id
         st.session_state.messages = [
             {"role": "assistant", "content": "我们来玩猜东西游戏吧！你准备好了吗？"}
@@ -86,15 +75,14 @@ def main():
 
     game_config = GAME_PROMPTS[st.session_state.game_id]
 
-    # --- Sidebar ---
-    with st.sidebar:
-        sidebar(game_config)
     # --- Chat Interface ---
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
     if st.session_state.game_over:
+        with st.sidebar:
+            sidebar(game_config)
         if st.session_state.failure_reason:
             st.error(st.session_state.failure_reason)
         else:
@@ -144,7 +132,9 @@ def main():
             with st.chat_message("assistant"):
                 st.markdown(response)
 
-        st.rerun()
+    # Sidebar is here to refresh attempt
+    with st.sidebar:
+        sidebar(game_config)
 
 
 if __name__ == "__main__":

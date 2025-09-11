@@ -5,6 +5,8 @@ services:
       dockerfile: deploy/Containerfile
     image: play:${VERSION:-latest}
     container_name: guess-game-app
+    volumes:
+      - ../data:/app/data
     ports:
       - "8503:8503"
     env_file:

@@ -37,3 +37,6 @@ CHANGELOG.md
 # Container related
 deploy/
 .containerignore
+
+# Static files
+data/

@@ -1,20 +1,31 @@
 [project]
 name = "play"
-version = "0.1.0"
+version = "1.0.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
   "dashscope>=1.24.4",
+  "fastapi>=0.116.1",
+  "gradio>=5.45.0",
   "langchain-community>=0.3.29",
   "langchain>=0.3.27",
   "python-dotenv==1.0.0",
   "qrcode>=8.2",
   "rich>=14.1.0",
-  "streamlit>=1.49.1",
+  "uvicorn>=0.35.0",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.12.12",
 ]
+
+[build-system]
+requires = ["uv_build>=0.8.12,<0.9.0"]
+build-backend = "uv_build"
+
+[[tool.uv.index]]
+name = "sjtug"
+url = "https://mirrors.sjtug.sjtu.edu.cn/pypi/web/simple/"
+default = true

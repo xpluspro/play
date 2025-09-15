@@ -6,8 +6,8 @@ default: install
 install:
   uv sync --all-extras
 
-dev:
-  streamlit run src/app.py
+dev port='7860':
+  uvicorn play.app:app --host 127.0.0.1 --port {{port}}
 
 container_runtime := env_var_or_default('CONTAINER_RUNTIME', 'podman')
 

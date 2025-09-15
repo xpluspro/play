@@ -3,7 +3,7 @@ from langchain.schema import HumanMessage, SystemMessage
 import os
 
 from pydantic import SecretStr
-from models import GAME_PROMPTS
+from .models import GAME_PROMPTS
 
 
 class QwenChatService:

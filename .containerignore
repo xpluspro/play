@@ -18,7 +18,6 @@ wheels/
 .pre-commit-config.yaml
 justfile
 .vscode/*
-README.md
 CHANGELOG.md
 
 # Env

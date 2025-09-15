@@ -31,7 +31,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
 
-EXPOSE 8503
+EXPOSE 7860
 
 # Run the application.
-CMD ["streamlit", "run", "--server.address", "0.0.0.0", "--server.port", "8503", "src/app.py"]
+CMD ["uvicorn", "play.app:app", "--workers", "4", "--host", "0.0.0.0", "--port", "7860"]

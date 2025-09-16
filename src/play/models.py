@@ -8,7 +8,6 @@ class GamePrompt(BaseModel):
     answer: str  # 正确答案
     system_prompt: str  # 系统提示词
     hints: list[str] = []  # 提示信息
-    max_attempts: int = 10  # 最大尝试次数
 
 
 def format_prompt(answer: str, rules: str, examples: list[str]):
@@ -53,7 +52,6 @@ GAME_PROMPTS = {
             ],
         ),
         hints=[],
-        max_attempts=999,
     ),
     "addr": GamePrompt(
         name="Problem 2",
@@ -74,7 +72,6 @@ GAME_PROMPTS = {
             ],
         ),
         hints=[],
-        max_attempts=999,
     ),
     "web": GamePrompt(
         name="Problem 3",
@@ -93,8 +90,6 @@ GAME_PROMPTS = {
                 "会搞点神秘的新功能新项目",
             ],
         ),
-        hints=[],
-        max_attempts=999,
     ),
     "nimoer": GamePrompt(
         name="Problem 4",
@@ -114,6 +109,5 @@ GAME_PROMPTS = {
             ],
         ),
         hints=[],
-        max_attempts=999,
     ),
 }

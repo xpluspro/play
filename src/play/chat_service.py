@@ -18,7 +18,7 @@ class QwenChatService:
             api_key=SecretStr(self.api_key),
         )
 
-    def get_response_sync(self, message: str, game_id: str) -> str:
+    async def get_response(self, message: str, game_id: str) -> str:
         """获取AI回复"""
         try:
             game_prompt = GAME_PROMPTS.get(game_id)
@@ -30,8 +30,7 @@ class QwenChatService:
                 HumanMessage(content=message),
             ]
 
-            # Use the synchronous `invoke` method
-            response = self.client.invoke(messages)
+            response = await self.client.ainvoke(messages)
             content: str = response.content
             return content.strip().replace(game_prompt.answer, "███")
 

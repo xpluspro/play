@@ -26,6 +26,7 @@ def create_game_ui(game_id: str = "nimo"):
     game_config = GAME_PROMPTS[game_id]
 
     with gr.Blocks(title="🎮 猜东西游戏", theme=themes.Soft()) as demo:
+        timer = gr.Timer(0.5)
         # Game State
         state = gr.State(
             {
@@ -34,7 +35,6 @@ def create_game_ui(game_id: str = "nimo"):
                 "game_over": False,
                 "game_started": False,
                 "start_time": None,
-                "attempts": 0,
                 "failure_reason": None,
                 "final_time": None,
             }
@@ -61,16 +61,8 @@ def create_game_ui(game_id: str = "nimo"):
                 )
             with gr.Column(scale=1):
                 with gr.Accordion("游戏状态", open=True):
-                    game_name_display = gr.Markdown(f"**游戏:** {game_config.name}")
-                    attempts_display = gr.Markdown(
-                        f"**尝试次数:** 0 / {game_config.max_attempts}"
-                    )
+                    gr.Markdown(f"**游戏:** {game_config.name}")
                     timer_display = gr.Markdown("**已用时:** 0.000 秒")
-
-                with gr.Accordion("游戏规则", open=True):
-                    gr.Info(
-                        f"你需要通过提问来猜出我心中想的东西。你有 {game_config.max_attempts} 次机会。我会根据你的问题给出提示。当你觉得知道答案时，可以直接说出你的猜测。"
-                    )
 
                 with gr.Accordion("游戏设置", open=True):
                     new_game_button = gr.Button("🚀 开始新游戏", variant="primary")
@@ -93,8 +85,6 @@ def create_game_ui(game_id: str = "nimo"):
                 current_state["start_time"] = datetime.now()
                 current_state["game_started"] = True
 
-            current_state["attempts"] += 1
-
             # --- Game Logic ---
             is_correct = chat_service.check_answer(prompt, current_state["game_id"])
 
@@ -110,21 +100,8 @@ def create_game_ui(game_id: str = "nimo"):
                 )
                 return current_state, current_state["messages"], "", game_over_md
 
-            if current_state["attempts"] >= game_config.max_attempts:
-                current_state["game_over"] = True
-                current_state["failure_reason"] = (
-                    f"💔 游戏结束！你没有在 {game_config.max_attempts} 次机会内猜出答案。正确答案是：{game_config.answer}"
-                )
-                game_over_md = gr.Markdown(
-                    f'<div style="color: red; font-weight: bold;">{current_state["failure_reason"]}</div>',
-                    visible=True,
-                )
-                return current_state, current_state["messages"], "", game_over_md
-
             # If not correct, get AI response
-            response = await asyncio.to_thread(
-                chat_service.get_response_sync, prompt, current_state["game_id"]
-            )
+            response = await chat_service.get_response(prompt, current_state["game_id"])
             current_state["messages"].append(gr.ChatMessage(response))
 
             return (
@@ -135,8 +112,7 @@ def create_game_ui(game_id: str = "nimo"):
             )
 
         async def update_displays(current_state: dict):
-            """Updates the attempts and timer displays."""
-            attempts_str = f"**尝试次数:** {current_state['attempts']} / {game_config.max_attempts}"
+            """Updates the timer displays."""
             elapsed_time = 0.0
             if current_state["game_started"] and not current_state["game_over"]:
                 elapsed_time = (
@@ -146,7 +122,13 @@ def create_game_ui(game_id: str = "nimo"):
                 elapsed_time = current_state["final_time"]
 
             timer_str = f"**已用时:** {elapsed_time:.3f} 秒"
-            return attempts_str, timer_str
+            return timer_str
+
+        timer.tick(
+            update_displays,
+            inputs=[state],
+            outputs=[timer_display],
+        )
 
         def reset_game():
             """Resets the game to its initial state."""
@@ -156,7 +138,6 @@ def create_game_ui(game_id: str = "nimo"):
                 "game_over": False,
                 "game_started": False,
                 "start_time": None,
-                "attempts": 0,
                 "failure_reason": None,
                 "final_time": None,
             }
@@ -184,12 +165,6 @@ def create_game_ui(game_id: str = "nimo"):
             reset_game,
             inputs=[],
             outputs=[state, chatbot, game_over_display, user_input],
-        )
-
-        demo.load(
-            update_displays,
-            inputs=[state],
-            outputs=[attempts_display, timer_display],
         )
 
     return demo

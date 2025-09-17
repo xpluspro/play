@@ -1,14 +1,37 @@
+x-app-template:
+  &app-template
+  build:
+    context: ..
+    dockerfile: deploy/Containerfile
+  image: play:${VERSION:-latest}
+  volumes:
+    - ../data:/app/data
+  env_file:
+    - ../.env
+  restart: unless-stopped
+
 services:
-  app:
-    build:
-      context: ..
-      dockerfile: deploy/Containerfile
-    image: play:${VERSION:-latest}
-    container_name: guess-game-app
-    volumes:
-      - ../data:/app/data
+  app1:
+    <<: *app-template
+    container_name: guess-game-app1
+
+  app2:
+    <<: *app-template
+    container_name: guess-game-app2
+
+  app3:
+    <<: *app-template
+    container_name: guess-game-app3
+
+  app4:
+    <<: *app-template
+    container_name: guess-game-app4
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: caddy
     ports:
       - "7860:7860"
-    env_file:
-      - ../.env
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
     restart: unless-stopped

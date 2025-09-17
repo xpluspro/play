@@ -26,7 +26,6 @@ def create_game_ui(game_id: str = "nimo"):
     game_config = GAME_PROMPTS[game_id]
 
     with gr.Blocks(title="🎮 猜东西游戏", theme=themes.Soft()) as demo:
-        timer = gr.Timer(0.5)
         # Game State
         state = gr.State(
             {
@@ -62,7 +61,6 @@ def create_game_ui(game_id: str = "nimo"):
             with gr.Column(scale=1):
                 with gr.Accordion("游戏状态", open=True):
                     gr.Markdown(f"**游戏:** {game_config.name}")
-                    timer_display = gr.Markdown("**已用时:** 0.000 秒")
 
                 with gr.Accordion("游戏设置", open=True):
                     new_game_button = gr.Button("🚀 开始新游戏", variant="primary")
@@ -110,25 +108,6 @@ def create_game_ui(game_id: str = "nimo"):
                 "",
                 gr.Markdown(visible=False),
             )
-
-        async def update_displays(current_state: dict):
-            """Updates the timer displays."""
-            elapsed_time = 0.0
-            if current_state["game_started"] and not current_state["game_over"]:
-                elapsed_time = (
-                    datetime.now() - current_state["start_time"]
-                ).total_seconds()
-            elif current_state["game_over"] and current_state["final_time"]:
-                elapsed_time = current_state["final_time"]
-
-            timer_str = f"**已用时:** {elapsed_time:.3f} 秒"
-            return timer_str
-
-        timer.tick(
-            update_displays,
-            inputs=[state],
-            outputs=[timer_display],
-        )
 
         def reset_game():
             """Resets the game to its initial state."""

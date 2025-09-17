@@ -1,0 +1,5 @@
+:7860 {
+	reverse_proxy app1:7860 app2:7860 app3:7860 app4:7860 {
+		lb_policy cookie session_id
+	}
+}

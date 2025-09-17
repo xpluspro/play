@@ -26,6 +26,6 @@ requires = ["uv_build>=0.8.12,<0.9.0"]
 build-backend = "uv_build"
 
 [[tool.uv.index]]
-name = "sjtug"
-url = "https://mirrors.sjtug.sjtu.edu.cn/pypi/web/simple/"
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true

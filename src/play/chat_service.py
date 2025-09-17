@@ -14,7 +14,7 @@ class QwenChatService:
             raise ValueError("QWEN_API_KEY environment variable not set.")
 
         self.client = ChatTongyi(
-            model="qwen-turbo",
+            model="qwen-turbo-2025-07-15",
             api_key=SecretStr(self.api_key),
         )
 
